@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-import echobot.speech_assets as speech_assets
+import amadeus.speech_assets as speech_assets
 
 
 class FakeDownloadResponse:
@@ -42,7 +42,7 @@ class SpeechAssetsTests(unittest.TestCase):
             destination = Path(temp_dir) / "model.bin"
             stderr = io.StringIO()
 
-            with patch("echobot.speech_assets.urlopen", return_value=response):
+            with patch("amadeus.speech_assets.urlopen", return_value=response):
                 with patch("sys.stderr", stderr):
                     speech_assets.download_file(
                         "https://example.com/model.bin",
@@ -66,8 +66,8 @@ class SpeechAssetsTests(unittest.TestCase):
             destination = Path(temp_dir) / "model.bin"
             stderr = io.StringIO()
 
-            with patch("echobot.speech_assets.urlopen", return_value=response):
-                with patch("echobot.speech_assets._DOWNLOAD_PROGRESS_UPDATE_INTERVAL_SECONDS", 0.0):
+            with patch("amadeus.speech_assets.urlopen", return_value=response):
+                with patch("amadeus.speech_assets._DOWNLOAD_PROGRESS_UPDATE_INTERVAL_SECONDS", 0.0):
                     with patch("sys.stderr", stderr):
                         speech_assets.download_file(
                             "https://example.com/model.bin",

@@ -9,14 +9,14 @@ from unittest.mock import AsyncMock, patch
 
 from PIL import Image
 
-from echobot.attachments import AttachmentStore
-from echobot.channels import ChannelAddress, OutboundMessage
-from echobot.channels.platforms.qq import (
+from amadeus.attachments import AttachmentStore
+from amadeus.channels import ChannelAddress, OutboundMessage
+from amadeus.channels.platforms.qq import (
     QQChannel,
     _download_file_as_attachment,
     _download_image_as_attachment,
 )
-from echobot.channels.platforms.telegram import TelegramChannel
+from amadeus.channels.platforms.telegram import TelegramChannel
 
 
 def make_png_bytes() -> bytes:
@@ -45,7 +45,7 @@ class ChannelImageNormalizationTests(unittest.IsolatedAsyncioTestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             attachment_store = AttachmentStore(Path(temp_dir) / "attachments")
             with patch(
-                "echobot.channels.platforms.qq.request.urlopen",
+                "amadeus.channels.platforms.qq.request.urlopen",
                 return_value=_FakeUrlResponse(make_png_bytes()),
             ):
                 image_payload = _download_image_as_attachment(
@@ -90,7 +90,7 @@ class ChannelImageNormalizationTests(unittest.IsolatedAsyncioTestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             attachment_store = AttachmentStore(Path(temp_dir) / "attachments")
             with patch(
-                "echobot.channels.platforms.qq.request.urlopen",
+                "amadeus.channels.platforms.qq.request.urlopen",
                 return_value=_FakeUrlResponse(b"hello from qq file"),
             ):
                 file_payload = _download_file_as_attachment(

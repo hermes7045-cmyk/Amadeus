@@ -7,33 +7,33 @@ import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from echobot.channels.types import ChannelAddress
-from echobot.commands.bindings import (
+from amadeus.channels.types import ChannelAddress
+from amadeus.commands.bindings import (
     CliCommandContext,
     GatewayCommandContext,
     dispatch_cli_command,
     dispatch_gateway_command,
 )
-from echobot.commands.dispatcher import (
+from amadeus.commands.dispatcher import (
     BoundTextCommand,
     CommandResult,
     dispatch_text_command,
 )
-from echobot.commands.help import parse_help_command
-from echobot.commands.route_mode import (
+from amadeus.commands.help import parse_help_command
+from amadeus.commands.route_mode import (
     RouteModeCommand,
     execute_route_mode_command,
     parse_route_mode_command,
 )
-from echobot.commands.route_sessions import parse_route_session_command
-from echobot.commands.runtime import (
+from amadeus.commands.route_sessions import parse_route_session_command
+from amadeus.commands.runtime import (
     RuntimeCommand,
     execute_runtime_command,
     parse_runtime_command,
 )
-from echobot.commands.saved_sessions import parse_saved_session_command
-from echobot.runtime.settings import RuntimeControls, RuntimeSettingsStore
-from echobot.runtime.sessions import ChatSession
+from amadeus.commands.saved_sessions import parse_saved_session_command
+from amadeus.runtime.settings import RuntimeControls, RuntimeSettingsStore
+from amadeus.runtime.sessions import ChatSession
 
 
 class SharedCommandDispatchTests(unittest.IsolatedAsyncioTestCase):
@@ -72,7 +72,7 @@ class SharedCommandDispatchTests(unittest.IsolatedAsyncioTestCase):
 
 class SessionCommandParsingTests(unittest.TestCase):
     def test_help_command_supports_bot_suffix(self) -> None:
-        command = parse_help_command("/help@EchoBot")
+        command = parse_help_command("/help@Amadeus")
         self.assertIsNotNone(command)
 
     def test_runtime_command_supports_get_set_and_list_forms(self) -> None:
@@ -88,7 +88,7 @@ class SessionCommandParsingTests(unittest.TestCase):
         self.assertEqual("delegated_ack_enabled", command.key)
         self.assertEqual("off", command.value)
 
-        command = parse_runtime_command("/runtime@EchoBot get delegated_ack_enabled")
+        command = parse_runtime_command("/runtime@Amadeus get delegated_ack_enabled")
         self.assertIsNotNone(command)
         assert command is not None
         self.assertEqual("get", command.action)
@@ -107,7 +107,7 @@ class SessionCommandParsingTests(unittest.TestCase):
         self.assertEqual("set", command.action)
         self.assertEqual("chat_only", command.argument)
 
-        command = parse_route_mode_command("/route@EchoBot force-agent")
+        command = parse_route_mode_command("/route@Amadeus force-agent")
         self.assertIsNotNone(command)
         assert command is not None
         self.assertEqual("set", command.action)
@@ -120,7 +120,7 @@ class SessionCommandParsingTests(unittest.TestCase):
         self.assertEqual("switch", command.action)
         self.assertEqual("2", command.argument)
 
-        command = parse_route_session_command("/ls@EchoBot")
+        command = parse_route_session_command("/ls@Amadeus")
         self.assertIsNotNone(command)
         assert command is not None
         self.assertEqual("list", command.action)
@@ -244,7 +244,7 @@ class CommandExecutionTests(unittest.IsolatedAsyncioTestCase):
             coordinator = RuntimeCommandCoordinatorStub(
                 delegated_ack_enabled=True,
             )
-            settings_path = workspace / ".echobot" / "runtime_settings.json"
+            settings_path = workspace / ".amadeus" / "runtime_settings.json"
             settings_path.parent.mkdir(parents=True, exist_ok=True)
             settings_path.write_text(
                 json.dumps(
@@ -328,7 +328,7 @@ class CommandExecutionTests(unittest.IsolatedAsyncioTestCase):
                 response,
             )
 
-            settings_path = workspace / ".echobot" / "runtime_settings.json"
+            settings_path = workspace / ".amadeus" / "runtime_settings.json"
             payload = json.loads(settings_path.read_text(encoding="utf-8"))
             self.assertEqual("read-only", payload["shell_safety_mode"])
 
@@ -372,7 +372,7 @@ class CommandExecutionTests(unittest.IsolatedAsyncioTestCase):
                 response,
             )
 
-            settings_path = workspace / ".echobot" / "runtime_settings.json"
+            settings_path = workspace / ".amadeus" / "runtime_settings.json"
             payload = json.loads(settings_path.read_text(encoding="utf-8"))
             self.assertFalse(payload["file_write_enabled"])
             self.assertTrue(payload["web_private_network_enabled"])
@@ -382,7 +382,7 @@ class RuntimeSettingsStoreTests(unittest.TestCase):
     def test_update_serializes_concurrent_writers_for_same_file(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             settings_path = (
-                Path(temp_dir) / ".echobot" / "runtime_settings.json"
+                Path(temp_dir) / ".amadeus" / "runtime_settings.json"
             )
             store = RuntimeSettingsStore(settings_path)
             store.update_named_value("delegated_ack_enabled", True)

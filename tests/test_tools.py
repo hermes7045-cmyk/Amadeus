@@ -12,17 +12,17 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from unittest.mock import patch
 
-from echobot import (
+from amadeus import (
     AgentCore,
     AttachmentStore,
     LLMMessage,
     WebRequestTool,
     create_basic_tool_registry,
 )
-from echobot.models import LLMResponse, ToolCall
-from echobot.providers.base import LLMProvider
-from echobot.tools import BaseTool, ToolRegistry
-from echobot.tools.builtin import _decode_command_output
+from amadeus.models import LLMResponse, ToolCall
+from amadeus.providers.base import LLMProvider
+from amadeus.tools import BaseTool, ToolRegistry
+from amadeus.tools.builtin import _decode_command_output
 
 
 class EchoTool(BaseTool):
@@ -195,7 +195,7 @@ class BasicToolRegistryTests(unittest.IsolatedAsyncioTestCase):
             workspace = Path(temp_dir)
             image_path = workspace / "pixel.png"
             image_path.write_bytes(tiny_png)
-            attachment_store = AttachmentStore(workspace / ".echobot" / "attachments")
+            attachment_store = AttachmentStore(workspace / ".amadeus" / "attachments")
             registry = create_basic_tool_registry(
                 workspace,
                 attachment_store=attachment_store,
@@ -221,7 +221,7 @@ class BasicToolRegistryTests(unittest.IsolatedAsyncioTestCase):
     def test_registry_omits_view_image_when_vision_is_disabled(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
-            attachment_store = AttachmentStore(workspace / ".echobot" / "attachments")
+            attachment_store = AttachmentStore(workspace / ".amadeus" / "attachments")
             registry = create_basic_tool_registry(
                 workspace,
                 attachment_store=attachment_store,
@@ -241,7 +241,7 @@ class BasicToolRegistryTests(unittest.IsolatedAsyncioTestCase):
             workspace = Path(temp_dir)
             image_path = workspace / "preview.png"
             image_path.write_bytes(tiny_png)
-            attachment_store = AttachmentStore(workspace / ".echobot" / "attachments")
+            attachment_store = AttachmentStore(workspace / ".amadeus" / "attachments")
             registry = create_basic_tool_registry(
                 workspace,
                 attachment_store=attachment_store,
@@ -270,7 +270,7 @@ class BasicToolRegistryTests(unittest.IsolatedAsyncioTestCase):
             workspace = Path(temp_dir)
             file_path = workspace / "report.txt"
             file_path.write_text("hello", encoding="utf-8")
-            attachment_store = AttachmentStore(workspace / ".echobot" / "attachments")
+            attachment_store = AttachmentStore(workspace / ".amadeus" / "attachments")
             registry = create_basic_tool_registry(
                 workspace,
                 attachment_store=attachment_store,
@@ -302,7 +302,7 @@ class BasicToolRegistryTests(unittest.IsolatedAsyncioTestCase):
         raw_bytes = "Beijing: 🌫  +34°F\n".encode("utf-8")
 
         with patch(
-            "echobot.tools.builtin.locale.getpreferredencoding",
+            "amadeus.tools.builtin.locale.getpreferredencoding",
             return_value="cp936",
         ):
             decoded = _decode_command_output(raw_bytes)
@@ -313,7 +313,7 @@ class BasicToolRegistryTests(unittest.IsolatedAsyncioTestCase):
         raw_bytes = "天气晴".encode("gbk")
 
         with patch(
-            "echobot.tools.builtin.locale.getpreferredencoding",
+            "amadeus.tools.builtin.locale.getpreferredencoding",
             return_value="cp936",
         ):
             decoded = _decode_command_output(raw_bytes)
@@ -756,7 +756,7 @@ class BasicToolRegistryTests(unittest.IsolatedAsyncioTestCase):
                 text=True,
             )
             subprocess.run(
-                ["git", "config", "user.name", "EchoBot Test"],
+                ["git", "config", "user.name", "Amadeus Test"],
                 cwd=workspace,
                 check=True,
                 capture_output=True,

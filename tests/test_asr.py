@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import unittest
 
-from echobot.asr import (
+from amadeus.asr import (
     ASRService,
     ProviderStatusSnapshot,
     SpeechSegment,
     TranscriptionResult,
     VADStepResult,
 )
-from echobot.asr.providers import ASRProvider
-from echobot.asr.vad import VADProvider, VADSession
+from amadeus.asr.providers import ASRProvider
+from amadeus.asr.vad import VADProvider, VADSession
 
 
 class FakeASRProvider(ASRProvider):

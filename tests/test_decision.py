@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import unittest
 
-from echobot import AgentCore, LLMMessage, LLMResponse
-from echobot.orchestration.decision import (
+from amadeus import AgentCore, LLMMessage, LLMResponse
+from amadeus.orchestration.decision import (
     DecisionEngine,
     _parse_decision_response,
     _rule_based_decision,
 )
-from echobot.providers.base import LLMProvider
+from amadeus.providers.base import LLMProvider
 
 
 class StaticProvider(LLMProvider):
@@ -135,7 +135,7 @@ class DecisionEngineTests(unittest.IsolatedAsyncioTestCase):
             )
         )
 
-        with self.assertLogs("echobot.orchestration.decision", level="WARNING") as logs:
+        with self.assertLogs("amadeus.orchestration.decision", level="WARNING") as logs:
             decision = await engine.decide("Please run that in the background")
 
         self.assertEqual("chat", decision.route)

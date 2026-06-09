@@ -6,19 +6,19 @@ import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
 
-from echobot.cli.chat import _build_streamed_assistant_writer, run_turn
-from echobot.cli.session_commands import (
+from amadeus.cli.chat import _build_streamed_assistant_writer, run_turn
+from amadeus.cli.session_commands import (
     handle_session_command,
     is_session_command,
 )
-from echobot.cli.trace import (
+from amadeus.cli.trace import (
     build_tool_call_trace_title,
     build_tool_result_trace_title,
     format_json_text,
     print_tool_trace,
 )
-from echobot import AgentCore, ChatSession, LLMMessage, LLMResponse, SessionStore, ToolCall
-from echobot.providers.base import LLMProvider
+from amadeus import AgentCore, ChatSession, LLMMessage, LLMResponse, SessionStore, ToolCall
+from amadeus.providers.base import LLMProvider
 
 
 class ChatAgentTraceTests(unittest.TestCase):

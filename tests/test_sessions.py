@@ -4,8 +4,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from echobot import ChatSession, LLMMessage, SessionStore, ToolCall
-from echobot.runtime.sessions import normalize_session_name
+from amadeus import ChatSession, LLMMessage, SessionStore, ToolCall
+from amadeus.runtime.sessions import normalize_session_name
 
 
 class SessionStoreTests(unittest.TestCase):

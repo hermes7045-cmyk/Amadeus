@@ -3,10 +3,10 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-from echobot import AgentCore, LLMMessage, LLMResponse
-from echobot.orchestration import RoleCardRegistry, RoleplayEngine
-from echobot.providers.base import LLMProvider
-from echobot.runtime.sessions import ChatSession
+from amadeus import AgentCore, LLMMessage, LLMResponse
+from amadeus.orchestration import RoleCardRegistry, RoleplayEngine
+from amadeus.providers.base import LLMProvider
+from amadeus.runtime.sessions import ChatSession
 
 
 _HISTORY_MARKER = "OLD_HISTORY_MARKER"
@@ -154,7 +154,7 @@ class RoleplayEngineTests(unittest.IsolatedAsyncioTestCase):
         engine, role_card = self._build_engine(FailingProvider())
         session = self._session_with_history()
 
-        with self.assertLogs("echobot.orchestration.roleplay", level="ERROR") as logs:
+        with self.assertLogs("amadeus.orchestration.roleplay", level="ERROR") as logs:
             result = await engine.chat_reply(
                 session=session,
                 user_input="继续聊天",
@@ -173,7 +173,7 @@ class RoleplayEngineTests(unittest.IsolatedAsyncioTestCase):
         async def on_chunk(chunk: str) -> None:
             chunks.append(chunk)
 
-        with self.assertLogs("echobot.orchestration.roleplay", level="ERROR") as logs:
+        with self.assertLogs("amadeus.orchestration.roleplay", level="ERROR") as logs:
             result = await engine.stream_chat_reply(
                 session=session,
                 user_input="继续聊天",
@@ -190,7 +190,7 @@ class RoleplayEngineTests(unittest.IsolatedAsyncioTestCase):
         engine, role_card = self._build_engine(TruncatedProvider(""))
         session = self._session_with_history()
 
-        with self.assertLogs("echobot.orchestration.roleplay", level="WARNING") as logs:
+        with self.assertLogs("amadeus.orchestration.roleplay", level="WARNING") as logs:
             result = await engine.delegated_ack(
                 session=session,
                 user_input="帮我启动后台任务",

@@ -5,9 +5,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from echobot import AgentCore, LLMMessage, SkillRegistry, ToolRegistry
-from echobot.models import LLMResponse, LLMTool, ToolCall
-from echobot.providers.base import LLMProvider
+from amadeus import AgentCore, LLMMessage, SkillRegistry, ToolRegistry
+from amadeus.models import LLMResponse, LLMTool, ToolCall
+from amadeus.providers.base import LLMProvider
 
 
 def write_skill(
@@ -115,7 +115,7 @@ class SkillRegistryTests(unittest.TestCase):
                 body="project body",
             )
             write_skill(
-                project_root / "echobot" / "skills" / "demo-skill",
+                project_root / "amadeus" / "skills" / "demo-skill",
                 name="demo-skill",
                 description="built-in copy",
                 body="built-in body",
@@ -184,7 +184,7 @@ class SkillRegistryTests(unittest.TestCase):
     def test_discover_supports_utf8_bom_skill_file(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             project_root = Path(temp_dir)
-            skill_dir = project_root / "echobot" / "skills" / "weather"
+            skill_dir = project_root / "amadeus" / "skills" / "weather"
             skill_dir.mkdir(parents=True, exist_ok=True)
             (skill_dir / "SKILL.md").write_text(
                 (

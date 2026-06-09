@@ -1,22 +1,22 @@
 <div align="center">
 
-<img src="./assets/banner.jpg" width="100%" alt="EchoBot Banner" />
+<img src="./assets/banner.jpg" width="100%" alt="Amadeus Banner" />
 
 </div>
 
-# EchoBot: 二次元 AI 小助手
+# Amadeus: 二次元 AI 小助手
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > [English README](./README_EN.md)
 
-**EchoBot** 是一款支持 Live2D 的二次元 AI 小助手。它不仅能为你提供具有沉浸感的角色扮演与情感陪伴，还能在后台默默为你处理写代码、文件整理等复杂的 Agent 生产力任务 (๑>ᴗ<๑)。
+**Amadeus** 是一款支持 Live2D 的二次元 AI 小助手。它不仅能为你提供具有沉浸感的角色扮演与情感陪伴，还能在后台默默为你处理写代码、文件整理等复杂的 Agent 生产力任务 (๑>ᴗ<๑)。
 
 无论是网页端（支持实时语音与 Live2D 交互），还是聊天平台（支持 QQ、Telegram 接入），小助手都能随时随地响应你的呼唤喵~
 
 <p align="center">
-  <img src="./assets/webui_1.png" alt="EchoBot WebUI Preview">
+  <img src="./assets/webui_1.png" alt="Amadeus WebUI Preview">
 </p>
 
 > 展示所用的 Live2D 模型来自：[【免费模型】这么可爱的小狗免费带回家！](https://www.bilibili.com/video/BV1LM41137vK)
@@ -36,7 +36,7 @@
 
 常见的 AI Agent 由于需要载入庞大的工具列表和技能系统，天然耗费 Token 且响应缓慢。如果将角色设定与任务指令混杂，不仅容易导致“人设稀释”，还会严重拖累执行效率。
 
-EchoBot 采用 **Decision - Roleplay - Agent** 三层架构来解决这一痛点：
+Amadeus 采用 **Decision - Roleplay - Agent** 三层架构来解决这一痛点：
 
 ### 1. 🧠 Decision Layer (决策层)
 负责精准、快速地判断用户意图。
@@ -99,7 +99,7 @@ LLM_BASE_URL=https://api.deepseek.com/v1
 运行以下命令将同时启动聊天平台 Gateway 和网页端：
 
 ```shell
-python -m echobot app
+python -m amadeus app
 ```
 
 ### 开始体验
@@ -121,7 +121,7 @@ http://127.0.0.1:8000/web
 </p>
 
 
-上传完成后，小助手会自动将上传的文件夹复制到 `.echobot/live2d` 目录下。也可以手动将Live2D 资源文件夹复制到这个文件夹，小助手在下次启动的时候会自动加载。
+上传完成后，小助手会自动将上传的文件夹复制到 `.amadeus/live2d` 目录下。也可以手动将Live2D 资源文件夹复制到这个文件夹，小助手在下次启动的时候会自动加载。
 
 Live2D 默认开启眼神鼠标跟随的功能，可在面板中关闭。
 
@@ -160,10 +160,10 @@ Live2D 默认开启眼神鼠标跟随的功能，可在面板中关闭。
 小助手可以帮你记住重要的事情，并按时执行：
 
 * **定时任务 (Cron)**：按具体时间点触发。例如直接对小助手说：“半小时后提醒我去开会”，小助手会自动创建任务。
-  * 任务数据保存在 `.echobot/cron/jobs.json`。
+  * 任务数据保存在 `.amadeus/cron/jobs.json`。
 * **周期任务 (Heartbeat)**：按固定间隔自动触发，默认每 30 分钟一次。
   * 可通过修改 `.env` 中的 `ECHOBOT_HEARTBEAT_INTERVAL_SECONDS` 调整间隔（以秒为单位）。
-  * 可在网页端面板直接修改周期任务文件，或编辑项目目录下的 `.echobot/HEARTBEAT.md`。
+  * 可在网页端面板直接修改周期任务文件，或编辑项目目录下的 `.amadeus/HEARTBEAT.md`。
 
 <p align="center">
   <img src="./assets/webui_cron.png" height="300" alt="Cron Jobs">
@@ -186,7 +186,7 @@ Live2D 默认开启眼神鼠标跟随的功能，可在面板中关闭。
 
 ### 🎙️ 语音功能 (TTS & ASR)
 
-EchoBot 网页端支持半双工语音交互。可在控制面板灵活切换语音后端：
+Amadeus 网页端支持半双工语音交互。可在控制面板灵活切换语音后端：
 
 **🗣️ 语音合成 (TTS):**
 
@@ -203,11 +203,11 @@ EchoBot 网页端支持半双工语音交互。可在控制面板灵活切换语
 
 内置基于sherpa-onnx的 [Sensevoice](https://k2-fsa.github.io/sherpa/onnx/sense-voice/index.html) 模型，本地离线识别，首次启动会自动下载权重文件。
 
-EchoBot 网页端支持半双工语音交互（播报期间会自动暂停收音防回声），并支持“按住录音”与“常开麦克风”模式。
+Amadeus 网页端支持半双工语音交互（播报期间会自动暂停收音防回声），并支持“按住录音”与“常开麦克风”模式。
 
 ### 🔌 进阶：接入自定义语音模型
 
-EchoBot 支持 **OpenAI 协议** 的TTS和ASR接口，可以将内置语音模型换成专属的本地/云端服务：
+Amadeus 支持 **OpenAI 协议** 的TTS和ASR接口，可以将内置语音模型换成专属的本地/云端服务：
 
 <p align="center">
 <img src="./assets/webui_custom_1.png" width="50%" alt="Router Mode">
@@ -281,7 +281,7 @@ ECHOBOT_ASR_OPENAI_BASE_URL=http://localhost:8080/v1
   <img src="./assets/channel_qq_2.png">
 </p>
 
-在本地项目路径 `.echobot/channels.json` 中，配置 QQ 平台信息：
+在本地项目路径 `.amadeus/channels.json` 中，配置 QQ 平台信息：
 
 ```
 "enabled": true
@@ -302,7 +302,7 @@ ECHOBOT_ASR_OPENAI_BASE_URL=http://localhost:8080/v1
 
 在聊天框输入命令 `/newbot`，按照提示创建机器人，获取 `bot_token`。
 
-在本地项目路径 `.echobot/channels.json` 中，配置 Telegram 平台信息：
+在本地项目路径 `.amadeus/channels.json` 中，配置 Telegram 平台信息：
 
 ```
 "enabled": true
@@ -373,7 +373,7 @@ ECHOBOT_ASR_OPENAI_BASE_URL=http://localhost:8080/v1
 
 ## 💖 致谢与参考项目
 
-站在巨人的肩膀上，小助手才能变得这么聪明可爱喵！EchoBot 的诞生离不开以下优秀开源项目的启发与支持，特此鸣谢（鞠躬~ 🙇‍♀️）：
+站在巨人的肩膀上，小助手才能变得这么聪明可爱喵！Amadeus 的诞生离不开以下优秀开源项目的启发与支持，特此鸣谢（鞠躬~ 🙇‍♀️）：
 
 * **[nanobot](https://github.com/HKUDS/nanobot)**
 * **[CoPaw](https://github.com/agentscope-ai/CoPaw)**

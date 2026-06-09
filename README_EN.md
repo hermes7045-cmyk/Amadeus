@@ -1,22 +1,22 @@
 <div align="center">
 
-<img src="./assets/banner.jpg" width="100%" alt="EchoBot Banner" />
+<img src="./assets/banner.jpg" width="100%" alt="Amadeus Banner" />
 
 </div>
 
-# EchoBot: Your Anime AI Companion
+# Amadeus: Your Anime AI Companion
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > [中文文档 / Chinese README](./README.md)
 
-**EchoBot** is an anime-style AI companion with Live2D support. It offers immersive role-play and emotional companionship, while quietly handling complex Agent productivity tasks like coding and file management in the background (๑>ᴗ<๑).
+**Amadeus** is an anime-style AI companion with Live2D support. It offers immersive role-play and emotional companionship, while quietly handling complex Agent productivity tasks like coding and file management in the background (๑>ᴗ<๑).
 
 Whether you're using the web UI (with real-time voice and Live2D interaction) or chat platforms (QQ and Telegram supported), your companion is always ready to respond~
 
 <p align="center">
-  <img src="./assets/webui_1.png" alt="EchoBot WebUI Preview">
+  <img src="./assets/webui_1.png" alt="Amadeus WebUI Preview">
 </p>
 
 > The Live2D model shown in the demo is from: [【Free Model】Take this cute puppy home for free!](https://www.bilibili.com/video/BV1LM41137vK)
@@ -36,7 +36,7 @@ Whether you're using the web UI (with real-time voice and Live2D interaction) or
 
 Typical AI Agents are slow and token-heavy by nature due to large tool lists and skill systems. Mixing character settings with task instructions leads to "character dilution" and degrades execution efficiency.
 
-EchoBot uses a **Decision - Roleplay - Agent** three-layer architecture to solve this:
+Amadeus uses a **Decision - Roleplay - Agent** three-layer architecture to solve this:
 
 ### 1. 🧠 Decision Layer
 
@@ -105,7 +105,7 @@ LLM_BASE_URL=https://api.deepseek.com/v1
 The following command starts both the chat platform gateway and the web UI:
 
 ```shell
-python -m echobot app
+python -m amadeus app
 ```
 
 ### Start Using
@@ -128,7 +128,7 @@ A complete Live2D asset is typically a folder containing `.model3.json` and rela
   <img src="./assets/webui_live2d.png" width="50%">
 </p>
 
-After uploading, the companion automatically copies the folder to `.echobot/live2d`. You can also manually copy a Live2D asset folder there — it will be loaded on next startup.
+After uploading, the companion automatically copies the folder to `.amadeus/live2d`. You can also manually copy a Live2D asset folder there — it will be loaded on next startup.
 
 Eye-tracking (mouse follow) is enabled by default and can be toggled in the panel.
 
@@ -166,10 +166,10 @@ Beyond images, your companion can also help you handle various types of files:
 Your companion can remember important things and execute them on time:
 
 * **Cron Tasks**: Triggered at a specific time. Simply tell your companion "remind me to attend the meeting in 30 minutes" and a task will be created automatically.
-  * Task data is stored in `.echobot/cron/jobs.json`.
+  * Task data is stored in `.amadeus/cron/jobs.json`.
 * **Heartbeat Tasks**: Triggered at a fixed interval, defaulting to every 30 minutes.
   * Adjust the interval via `ECHOBOT_HEARTBEAT_INTERVAL_SECONDS` in `.env` (in seconds).
-  * Edit the heartbeat task file from the web panel or directly at `.echobot/HEARTBEAT.md`.
+  * Edit the heartbeat task file from the web panel or directly at `.amadeus/HEARTBEAT.md`.
 
 <p align="center">
   <img src="./assets/webui_cron.png" height="300" alt="Cron Jobs">
@@ -192,7 +192,7 @@ Switch the working mode manually in the web UI based on your needs:
 
 ### 🎙️ Voice Features (TTS & ASR)
 
-EchoBot's web UI supports half-duplex voice interaction. Switch voice backends flexibly from the control panel:
+Amadeus's web UI supports half-duplex voice interaction. Switch voice backends flexibly from the control panel:
 
 **🗣️ Text-to-Speech (TTS):**
 
@@ -209,11 +209,11 @@ Two free backends are supported:
 
 Powered by the [SenseVoice](https://k2-fsa.github.io/sherpa/onnx/sense-voice/index.html) model via sherpa-onnx — fully local and offline; model weights are downloaded automatically on first launch.
 
-EchoBot's web UI supports half-duplex voice interaction (microphone is muted during playback to prevent echo). Both "Push to Talk" and "Always-On Mic" modes are supported.
+Amadeus's web UI supports half-duplex voice interaction (microphone is muted during playback to prevent echo). Both "Push to Talk" and "Always-On Mic" modes are supported.
 
 ### 🔌 Advanced: Custom Voice Models
 
-EchoBot supports TTS and ASR interfaces that follow the **OpenAI-compatible API**, so you can replace the built-in voice models with your own local or cloud services:
+Amadeus supports TTS and ASR interfaces that follow the **OpenAI-compatible API**, so you can replace the built-in voice models with your own local or cloud services:
 
 <p align="center">
 <img src="./assets/webui_custom_1.png" width="50%" alt="Custom Voice Model Settings">
@@ -288,7 +288,7 @@ Click "Create Bot" to get your `AppID` and `AppSecret`:
   <img src="./assets/channel_qq_2.png">
 </p>
 
-Configure the QQ platform info in `.echobot/channels.json`:
+Configure the QQ platform info in `.amadeus/channels.json`:
 
 ```
 "enabled": true
@@ -308,7 +308,7 @@ Search for `@BotFather` in Telegram and open the official account (verified with
 
 Send the command `/newbot` and follow the prompts to create a bot and get your `bot_token`.
 
-Configure the Telegram platform info in `.echobot/channels.json`:
+Configure the Telegram platform info in `.amadeus/channels.json`:
 
 ```
 "enabled": true
@@ -368,7 +368,7 @@ These route mode commands use the same session routing setting as the route mode
 | `/runtime set` | `/runtime set <name> <value>` | Update one runtime setting |
 | `/runtime help` | `/runtime help` | Show runtime command help |
 
-Example: use `delegated_ack_enabled` to control whether EchoBot sends a quick notice before a background task starts.
+Example: use `delegated_ack_enabled` to control whether Amadeus sends a quick notice before a background task starts.
 
 ```text
 /runtime get delegated_ack_enabled
@@ -376,14 +376,14 @@ Example: use `delegated_ack_enabled` to control whether EchoBot sends a quick no
 /runtime set delegated_ack_enabled off
 ```
 
-- When set to `on`: EchoBot sends a short "started working" style message first, then sends the final result when the task finishes.
+- When set to `on`: Amadeus sends a short "started working" style message first, then sends the final result when the task finishes.
 - When set to `off`: the background task runs silently until the final result is ready.
 
 ---
 
 ## 💖 Acknowledgements
 
-Standing on the shoulders of giants is what makes this companion so smart and adorable! EchoBot was inspired by and built upon the following excellent open-source projects (deep bow 🙇‍♀️):
+Standing on the shoulders of giants is what makes this companion so smart and adorable! Amadeus was inspired by and built upon the following excellent open-source projects (deep bow 🙇‍♀️):
 
 * **[nanobot](https://github.com/HKUDS/nanobot)**
 * **[CoPaw](https://github.com/agentscope-ai/CoPaw)**

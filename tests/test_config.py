@@ -8,13 +8,13 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from echobot.config import (
+from amadeus.config import (
     _configure_loguru_reme_logging,
     configure_runtime_logging,
 )
-from echobot.images import DEFAULT_IMAGE_BUDGET
-from echobot.runtime.bootstrap import RuntimeOptions, build_runtime_context
-from echobot.runtime.settings import DEFAULT_SHELL_SAFETY_MODE
+from amadeus.images import DEFAULT_IMAGE_BUDGET
+from amadeus.runtime.bootstrap import RuntimeOptions, build_runtime_context
+from amadeus.runtime.settings import DEFAULT_SHELL_SAFETY_MODE
 
 
 class RuntimeLoggingConfigTests(unittest.TestCase):
@@ -89,7 +89,7 @@ class RuntimeBootstrapConfigTests(unittest.TestCase):
                         "LLM_MODEL=test-model",
                         "LLM_BASE_URL=https://example.com/v1",
                         "LLM_TIMEOUT=60",
-                        "ECHOBOT_AGENT_MAX_STEPS=77",
+                        "AMADEUS_AGENT_MAX_STEPS=77",
                     ]
                 )
                 + "\n",
@@ -121,7 +121,7 @@ class RuntimeBootstrapConfigTests(unittest.TestCase):
                         "LLM_MODEL=test-model",
                         "LLM_BASE_URL=https://example.com/v1",
                         "LLM_TIMEOUT=60",
-                        "ECHOBOT_DELEGATED_ACK_ENABLED=false",
+                        "AMADEUS_DELEGATED_ACK_ENABLED=false",
                     ]
                 )
                 + "\n",
@@ -158,7 +158,7 @@ class RuntimeBootstrapConfigTests(unittest.TestCase):
                 + "\n",
                 encoding="utf-8",
             )
-            settings_path = workspace / ".echobot" / "runtime_settings.json"
+            settings_path = workspace / ".amadeus" / "runtime_settings.json"
             settings_path.parent.mkdir(parents=True, exist_ok=True)
             settings_path.write_text(
                 '{"delegated_ack_enabled": false}\n',
@@ -190,7 +190,7 @@ class RuntimeBootstrapConfigTests(unittest.TestCase):
                         "LLM_MODEL=test-model",
                         "LLM_BASE_URL=https://example.com/v1",
                         "LLM_TIMEOUT=60",
-                        "ECHOBOT_SHELL_SAFETY_MODE=read-only",
+                        "AMADEUS_SHELL_SAFETY_MODE=read-only",
                     ]
                 )
                 + "\n",
@@ -294,11 +294,11 @@ class RuntimeBootstrapConfigTests(unittest.TestCase):
                         "LLM_MODEL=test-model",
                         "LLM_BASE_URL=https://example.com/v1",
                         "LLM_TIMEOUT=60",
-                        "ECHOBOT_IMAGE_MAX_INPUT_BYTES=31457280",
-                        "ECHOBOT_IMAGE_MAX_OUTPUT_BYTES=6291456",
-                        "ECHOBOT_IMAGE_MAX_SIDE=4096",
-                        "ECHOBOT_IMAGE_MAX_PIXELS=32000000",
-                        "ECHOBOT_FILE_MAX_INPUT_BYTES=10485760",
+                        "AMADEUS_IMAGE_MAX_INPUT_BYTES=31457280",
+                        "AMADEUS_IMAGE_MAX_OUTPUT_BYTES=6291456",
+                        "AMADEUS_IMAGE_MAX_SIDE=4096",
+                        "AMADEUS_IMAGE_MAX_PIXELS=32000000",
+                        "AMADEUS_FILE_MAX_INPUT_BYTES=10485760",
                     ]
                 )
                 + "\n",
@@ -342,7 +342,7 @@ class RuntimeBootstrapConfigTests(unittest.TestCase):
                         "LLM_MODEL=test-model",
                         "LLM_BASE_URL=https://example.com/v1",
                         "LLM_TIMEOUT=60",
-                        "ECHOBOT_LLM_SUPPORTS_IMAGE_INPUT=false",
+                        "AMADEUS_LLM_SUPPORTS_IMAGE_INPUT=false",
                     ]
                 )
                 + "\n",

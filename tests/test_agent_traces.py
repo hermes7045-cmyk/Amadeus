@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from echobot import (
+from amadeus import (
     AgentCore,
     AgentTraceStore,
     LLMMessage,
@@ -14,9 +14,9 @@ from echobot import (
     SessionAgentRunner,
     SessionStore,
 )
-from echobot.models import ToolCall
-from echobot.providers.base import LLMProvider
-from echobot.tools import BaseTool, RequestUserInputTool, ToolRegistry
+from amadeus.models import ToolCall
+from amadeus.providers.base import LLMProvider
+from amadeus.tools import BaseTool, RequestUserInputTool, ToolRegistry
 
 
 class EchoTool(BaseTool):

@@ -7,7 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from echobot.asr import OpenAITranscriptionsASRProvider, build_default_asr_service
+from amadeus.asr import OpenAITranscriptionsASRProvider, build_default_asr_service
 
 
 class _FakeTranscriptions:
@@ -53,7 +53,7 @@ class OpenAITranscriptionsASRProviderTests(unittest.IsolatedAsyncioTestCase):
             )
 
         with patch(
-            "echobot.asr.providers.openai_transcriptions.OpenAI",
+            "amadeus.asr.providers.openai_transcriptions.OpenAI",
             side_effect=fake_openai_constructor,
         ):
             provider = OpenAITranscriptionsASRProvider(
@@ -93,7 +93,7 @@ class OpenAITranscriptionsASRProviderTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_transcribe_samples_accepts_plain_text_response(self) -> None:
         with patch(
-            "echobot.asr.providers.openai_transcriptions.OpenAI",
+            "amadeus.asr.providers.openai_transcriptions.OpenAI",
             return_value=_FakeOpenAIClient({}, "plain transcript"),
         ):
             provider = OpenAITranscriptionsASRProvider(
@@ -115,7 +115,7 @@ class OpenAITranscriptionsASRProviderTests(unittest.IsolatedAsyncioTestCase):
             ],
         )
         with patch(
-            "echobot.asr.providers.openai_transcriptions.OpenAI",
+            "amadeus.asr.providers.openai_transcriptions.OpenAI",
             return_value=_FakeOpenAIClient({}, response),
         ):
             provider = OpenAITranscriptionsASRProvider(
@@ -129,7 +129,7 @@ class OpenAITranscriptionsASRProviderTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_status_snapshot_requires_real_api_key_for_official_openai_endpoint(self) -> None:
         with patch(
-            "echobot.asr.providers.openai_transcriptions.OpenAI",
+            "amadeus.asr.providers.openai_transcriptions.OpenAI",
             return_value=_FakeOpenAIClient({}, {"text": "unused"}),
         ):
             provider = OpenAITranscriptionsASRProvider(
@@ -150,22 +150,22 @@ class OpenAITranscriptionsFactoryTests(unittest.IsolatedAsyncioTestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
             with patch(
-                "echobot.asr.providers.openai_transcriptions.OpenAI",
+                "amadeus.asr.providers.openai_transcriptions.OpenAI",
                 return_value=_FakeOpenAIClient({}, {"text": "unused"}),
             ):
                 with patch.dict(
                     os.environ,
                     {
-                        "ECHOBOT_ASR_PROVIDER": "openai-transcriptions",
-                        "ECHOBOT_ASR_OPENAI_API_KEY": "EMPTY",
-                        "ECHOBOT_ASR_OPENAI_MODEL": "zai-org/GLM-ASR-Nano-2512",
-                        "ECHOBOT_ASR_OPENAI_BASE_URL": "http://localhost:8000/v1",
-                        "ECHOBOT_ASR_OPENAI_LANGUAGE": "en",
-                        "ECHOBOT_ASR_OPENAI_PROMPT": "keep punctuation",
-                        "ECHOBOT_ASR_OPENAI_TEMPERATURE": "0.1",
-                        "ECHOBOT_ASR_SHERPA_AUTO_DOWNLOAD": "false",
-                        "ECHOBOT_VAD_PROVIDER": "none",
-                        "ECHOBOT_VAD_SILERO_AUTO_DOWNLOAD": "false",
+                        "AMADEUS_ASR_PROVIDER": "openai-transcriptions",
+                        "AMADEUS_ASR_OPENAI_API_KEY": "EMPTY",
+                        "AMADEUS_ASR_OPENAI_MODEL": "zai-org/GLM-ASR-Nano-2512",
+                        "AMADEUS_ASR_OPENAI_BASE_URL": "http://localhost:8000/v1",
+                        "AMADEUS_ASR_OPENAI_LANGUAGE": "en",
+                        "AMADEUS_ASR_OPENAI_PROMPT": "keep punctuation",
+                        "AMADEUS_ASR_OPENAI_TEMPERATURE": "0.1",
+                        "AMADEUS_ASR_SHERPA_AUTO_DOWNLOAD": "false",
+                        "AMADEUS_VAD_PROVIDER": "none",
+                        "AMADEUS_VAD_SILERO_AUTO_DOWNLOAD": "false",
                     },
                     clear=False,
                 ):

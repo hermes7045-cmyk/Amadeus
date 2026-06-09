@@ -7,10 +7,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from echobot.agent import AgentCore, AgentRunResult
-from echobot import build_default_system_prompt
-from echobot.config import load_env_file
-from echobot.memory import (
+from amadeus.agent import AgentCore, AgentRunResult
+from amadeus import build_default_system_prompt
+from amadeus.config import load_env_file
+from amadeus.memory import (
     MemoryPreparationResult,
     ReMeLightSettings,
     ReMeLightSupport,
@@ -18,17 +18,17 @@ from echobot.memory import (
     _agentscope_messages_to_llm,
     _llm_messages_to_agentscope,
 )
-from echobot.models import LLMMessage, LLMResponse, LLMTool, LLMUsage, ToolCall
-from echobot.providers.base import LLMProvider
-from echobot.providers.openai_compatible import (
+from amadeus.models import LLMMessage, LLMResponse, LLMTool, LLMUsage, ToolCall
+from amadeus.providers.base import LLMProvider
+from amadeus.providers.openai_compatible import (
     OpenAICompatibleProvider,
     OpenAICompatibleSettings,
 )
-from echobot.runtime.session_runner import SessionAgentRunner
-from echobot.runtime.sessions import SessionStore
-from echobot.runtime.turns import run_agent_turn
-from echobot.skill_support import SkillRegistry
-from echobot.tools import BaseTool, ToolExecutionOutput, ToolRegistry
+from amadeus.runtime.session_runner import SessionAgentRunner
+from amadeus.runtime.sessions import SessionStore
+from amadeus.runtime.turns import run_agent_turn
+from amadeus.skill_support import SkillRegistry
+from amadeus.tools import BaseTool, ToolExecutionOutput, ToolRegistry
 
 
 class FakeProvider(LLMProvider):
@@ -595,7 +595,7 @@ class AgentCoreTests(unittest.IsolatedAsyncioTestCase):
         )
 
     async def test_request_user_input_stops_tool_loop_and_sets_waiting_status(self) -> None:
-        from echobot.tools import RequestUserInputTool
+        from amadeus.tools import RequestUserInputTool
 
         provider = FakeUserInputToolProvider()
         agent = AgentCore(provider)
@@ -662,11 +662,11 @@ class SystemPromptTests(unittest.TestCase):
 
             prompt = build_default_system_prompt(workspace)
 
-            self.assertIn("# EchoBot", prompt)
+            self.assertIn("# Amadeus", prompt)
             self.assertIn("## Environment", prompt)
             self.assertIn(f"- Workspace: {workspace.resolve()}", prompt)
             self.assertIn(
-                f"- Session store: {workspace.resolve() / '.echobot' / 'sessions'}",
+                f"- Session store: {workspace.resolve() / '.amadeus' / 'sessions'}",
                 prompt,
             )
             self.assertIn(platform.system(), prompt)
@@ -683,8 +683,8 @@ class SystemPromptTests(unittest.TestCase):
             )
 
             self.assertIn("## Memory", prompt)
-            self.assertIn(str(workspace / ".echobot" / "reme"), prompt)
-            self.assertIn(str(workspace / ".echobot" / "reme" / "MEMORY.md"), prompt)
+            self.assertIn(str(workspace / ".amadeus" / "reme"), prompt)
+            self.assertIn(str(workspace / ".amadeus" / "reme" / "MEMORY.md"), prompt)
             self.assertIn("memory_search", prompt)
 
     def test_build_default_system_prompt_can_use_custom_memory_workspace(self) -> None:
@@ -733,7 +733,7 @@ class ReMeLightSettingsTests(unittest.TestCase):
                 )
 
             self.assertEqual(
-                workspace.resolve() / ".echobot" / "reme",
+                workspace.resolve() / ".amadeus" / "reme",
                 settings.working_dir,
             )
 
@@ -808,7 +808,7 @@ class ReMeLightSupportTests(unittest.IsolatedAsyncioTestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             settings = self._build_settings(Path(temp_dir))
 
-            with patch("echobot.memory.support.ReMeLight", FakeReMeLight):
+            with patch("amadeus.memory.support.ReMeLight", FakeReMeLight):
                 support = ReMeLightSupport(settings)
                 await support.ensure_started()
 
@@ -826,7 +826,7 @@ class ReMeLightSupportTests(unittest.IsolatedAsyncioTestCase):
                 tool_result_compact_keep_n=1,
             )
 
-            with patch("echobot.memory.support.ReMeLight", FakeReMeLight):
+            with patch("amadeus.memory.support.ReMeLight", FakeReMeLight):
                 support = ReMeLightSupport(settings)
                 result = await support.compact_history(
                     [

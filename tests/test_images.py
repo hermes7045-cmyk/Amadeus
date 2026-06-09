@@ -9,8 +9,8 @@ from pathlib import Path
 
 from PIL import Image
 
-from echobot.attachments import AttachmentStore
-from echobot.images import ImageBudget, image_bytes_to_jpeg_data_url, normalize_image_bytes
+from amadeus.attachments import AttachmentStore
+from amadeus.images import ImageBudget, image_bytes_to_jpeg_data_url, normalize_image_bytes
 
 
 def make_png_bytes(*, size: tuple[int, int] = (2, 2)) -> bytes:

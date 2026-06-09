@@ -9,7 +9,7 @@ from types import SimpleNamespace
 from urllib.error import URLError
 from unittest.mock import patch
 
-from echobot.tts import (
+from amadeus.tts import (
     TTSProvider,
     TTSProviderStatus,
     TTSSynthesisOptions,
@@ -18,14 +18,14 @@ from echobot.tts import (
     build_default_openai_compatible_tts_provider,
     build_default_tts_service,
 )
-from echobot.tts.providers.edge import EdgeTTSProvider
-from echobot.tts.providers.kokoro import (
+from amadeus.tts.providers.edge import EdgeTTSProvider
+from amadeus.tts.providers.kokoro import (
     DEFAULT_KOKORO_VOICE,
     KokoroTTSProvider,
     kokoro_voice_options,
     speaker_id_for_voice,
 )
-from echobot.tts.providers.openai_compatible import OpenAICompatibleTTSProvider
+from amadeus.tts.providers.openai_compatible import OpenAICompatibleTTSProvider
 
 
 class _FakeSpeechResponse:
@@ -127,13 +127,13 @@ class _CapturingTTSProvider(TTSProvider):
 
 class TTSFactoryTests(unittest.TestCase):
     def test_provider_modules_are_grouped_under_providers_package(self) -> None:
-        self.assertEqual("echobot.tts.providers.edge", EdgeTTSProvider.__module__)
+        self.assertEqual("amadeus.tts.providers.edge", EdgeTTSProvider.__module__)
         self.assertEqual(
-            "echobot.tts.providers.kokoro.provider",
+            "amadeus.tts.providers.kokoro.provider",
             KokoroTTSProvider.__module__,
         )
         self.assertEqual(
-            "echobot.tts.providers.openai_compatible",
+            "amadeus.tts.providers.openai_compatible",
             OpenAICompatibleTTSProvider.__module__,
         )
 
@@ -156,8 +156,8 @@ class TTSFactoryTests(unittest.TestCase):
             with patch.dict(
                 os.environ,
                 {
-                    "ECHOBOT_TTS_KOKORO_AUTO_DOWNLOAD": "false",
-                    "ECHOBOT_TTS_KOKORO_DEFAULT_VOICE": "af_maple",
+                    "AMADEUS_TTS_KOKORO_AUTO_DOWNLOAD": "false",
+                    "AMADEUS_TTS_KOKORO_DEFAULT_VOICE": "af_maple",
                 },
                 clear=False,
             ):
@@ -171,8 +171,8 @@ class TTSFactoryTests(unittest.TestCase):
             with patch.dict(
                 os.environ,
                 {
-                    "ECHOBOT_TTS_KOKORO_AUTO_DOWNLOAD": "false",
-                    "ECHOBOT_TTS_KOKORO_DEFAULT_VOICE": "missing-voice",
+                    "AMADEUS_TTS_KOKORO_AUTO_DOWNLOAD": "false",
+                    "AMADEUS_TTS_KOKORO_DEFAULT_VOICE": "missing-voice",
                 },
                 clear=False,
             ):
@@ -186,7 +186,7 @@ class TTSFactoryTests(unittest.TestCase):
             with patch.dict(
                 os.environ,
                 {
-                    "ECHOBOT_TTS_PROVIDER": "openai-compatible",
+                    "AMADEUS_TTS_PROVIDER": "openai-compatible",
                 },
                 clear=False,
             ):
@@ -198,8 +198,8 @@ class TTSFactoryTests(unittest.TestCase):
         with patch.dict(
             os.environ,
             {
-                "ECHOBOT_TTS_OPENAI_DEFAULT_VOICE": "vivian",
-                "ECHOBOT_TTS_OPENAI_VOICES": "vivian, ryan",
+                "AMADEUS_TTS_OPENAI_DEFAULT_VOICE": "vivian",
+                "AMADEUS_TTS_OPENAI_VOICES": "vivian, ryan",
             },
             clear=False,
         ):
@@ -269,7 +269,7 @@ class OpenAICompatibleTTSProviderTests(unittest.IsolatedAsyncioTestCase):
             return _FakeOpenAIClient(captured, response)
 
         with patch(
-            "echobot.tts.providers.openai_compatible.OpenAI",
+            "amadeus.tts.providers.openai_compatible.OpenAI",
             side_effect=fake_openai_constructor,
         ):
             provider = OpenAICompatibleTTSProvider(
@@ -323,11 +323,11 @@ class OpenAICompatibleTTSProviderTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_list_voices_reads_audio_voices_endpoint(self) -> None:
         with patch(
-            "echobot.tts.providers.openai_compatible.OpenAI",
+            "amadeus.tts.providers.openai_compatible.OpenAI",
             return_value=_FakeOpenAIClient({}, _FakeSpeechResponse(content=b"unused")),
         ):
             with patch(
-                "echobot.tts.providers.openai_compatible.request.urlopen",
+                "amadeus.tts.providers.openai_compatible.request.urlopen",
                 return_value=_FakeUrlopenResponse(
                     '{"voices":["aiden","vivian","ryan"]}',
                 ),
@@ -344,11 +344,11 @@ class OpenAICompatibleTTSProviderTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_list_voices_falls_back_to_default_voice_when_endpoint_is_unavailable(self) -> None:
         with patch(
-            "echobot.tts.providers.openai_compatible.OpenAI",
+            "amadeus.tts.providers.openai_compatible.OpenAI",
             return_value=_FakeOpenAIClient({}, _FakeSpeechResponse(content=b"unused")),
         ):
             with patch(
-                "echobot.tts.providers.openai_compatible.request.urlopen",
+                "amadeus.tts.providers.openai_compatible.request.urlopen",
                 side_effect=URLError("refused"),
             ):
                 provider = OpenAICompatibleTTSProvider(
@@ -363,11 +363,11 @@ class OpenAICompatibleTTSProviderTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_list_voices_uses_configured_voice_names_without_network(self) -> None:
         with patch(
-            "echobot.tts.providers.openai_compatible.OpenAI",
+            "amadeus.tts.providers.openai_compatible.OpenAI",
             return_value=_FakeOpenAIClient({}, _FakeSpeechResponse(content=b"unused")),
         ):
             with patch(
-                "echobot.tts.providers.openai_compatible.request.urlopen",
+                "amadeus.tts.providers.openai_compatible.request.urlopen",
             ) as mocked_urlopen:
                 provider = OpenAICompatibleTTSProvider(
                     api_key="EMPTY",

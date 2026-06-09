@@ -15,28 +15,28 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 from PIL import Image
 
-from echobot import AgentCore, AgentTraceStore, LLMMessage, LLMResponse
-from echobot.attachments import AttachmentStore
-from echobot.asr import ASRStatusSnapshot, ProviderStatusSnapshot, TranscriptionResult
-from echobot.app import create_app
-from echobot.channels import ChannelAddress
-from echobot.orchestration import (
+from amadeus import AgentCore, AgentTraceStore, LLMMessage, LLMResponse
+from amadeus.attachments import AttachmentStore
+from amadeus.asr import ASRStatusSnapshot, ProviderStatusSnapshot, TranscriptionResult
+from amadeus.app import create_app
+from amadeus.channels import ChannelAddress
+from amadeus.orchestration import (
     ConversationCoordinator,
     DecisionEngine,
     RoleCardRegistry,
     RoleplayEngine,
 )
-from echobot.providers.base import LLMProvider
-from echobot.runtime.bootstrap import RuntimeContext, RuntimeOptions
-from echobot.runtime.settings import (
+from amadeus.providers.base import LLMProvider
+from amadeus.runtime.bootstrap import RuntimeContext, RuntimeOptions
+from amadeus.runtime.settings import (
     DEFAULT_SHELL_SAFETY_MODE,
     RuntimeConfigSnapshot,
     RuntimeControls,
     RuntimeSettingsStore,
 )
-from echobot.runtime.session_runner import SessionAgentRunner
-from echobot.runtime.sessions import SessionStore
-from echobot.scheduling.cron import (
+from amadeus.runtime.session_runner import SessionAgentRunner
+from amadeus.runtime.sessions import SessionStore
+from amadeus.scheduling.cron import (
     CronJob,
     CronJobState,
     CronPayload,
@@ -44,8 +44,8 @@ from echobot.scheduling.cron import (
     CronService,
     CronStore,
 )
-from echobot.scheduling.heartbeat import HeartbeatService
-from echobot.tts import (
+from amadeus.scheduling.heartbeat import HeartbeatService
+from amadeus.tts import (
     SynthesizedSpeech,
     TTSProvider,
     TTSSynthesisOptions,
@@ -54,8 +54,8 @@ from echobot.tts import (
 )
 
 
-os.environ.setdefault("ECHOBOT_ASR_SHERPA_AUTO_DOWNLOAD", "false")
-os.environ.setdefault("ECHOBOT_VAD_SILERO_AUTO_DOWNLOAD", "false")
+os.environ.setdefault("AMADEUS_ASR_SHERPA_AUTO_DOWNLOAD", "false")
+os.environ.setdefault("AMADEUS_VAD_SILERO_AUTO_DOWNLOAD", "false")
 
 
 def make_chat_png_bytes() -> bytes:
@@ -342,9 +342,9 @@ class FakeASRService:
 def build_test_context(options: RuntimeOptions) -> RuntimeContext:
     workspace = (options.workspace or Path(".")).resolve()
     agent = AgentCore(FakeProvider())
-    session_store = SessionStore(workspace / ".echobot" / "sessions")
-    agent_session_store = SessionStore(workspace / ".echobot" / "agent_sessions")
-    trace_store = AgentTraceStore(workspace / ".echobot" / "agent_traces")
+    session_store = SessionStore(workspace / ".amadeus" / "sessions")
+    agent_session_store = SessionStore(workspace / ".amadeus" / "agent_sessions")
+    trace_store = AgentTraceStore(workspace / ".amadeus" / "agent_traces")
     session_runner = SessionAgentRunner(
         agent,
         agent_session_store,
@@ -362,13 +362,13 @@ def build_test_context(options: RuntimeOptions) -> RuntimeContext:
     heartbeat_service = None
     if not options.no_heartbeat:
         heartbeat_service = HeartbeatService(
-            heartbeat_file=workspace / ".echobot" / "HEARTBEAT.md",
+            heartbeat_file=workspace / ".amadeus" / "HEARTBEAT.md",
             provider=FakeProvider(),
             interval_seconds=60,
         )
     return RuntimeContext(
         workspace=workspace,
-        attachment_store=AttachmentStore(workspace / ".echobot" / "attachments"),
+        attachment_store=AttachmentStore(workspace / ".amadeus" / "attachments"),
         supports_image_input=True,
         agent=agent,
         session_store=session_store,
@@ -376,13 +376,13 @@ def build_test_context(options: RuntimeOptions) -> RuntimeContext:
         session=None,
         tool_registry=None,
         skill_registry=None,
-        cron_service=CronService(workspace / ".echobot" / "cron" / "jobs.json"),
+        cron_service=CronService(workspace / ".amadeus" / "cron" / "jobs.json"),
         heartbeat_service=heartbeat_service,
         session_runner=session_runner,
         coordinator=coordinator,
         role_registry=role_registry,
         memory_support=None,
-        heartbeat_file_path=workspace / ".echobot" / "HEARTBEAT.md",
+        heartbeat_file_path=workspace / ".amadeus" / "HEARTBEAT.md",
         heartbeat_interval_seconds=60,
         tool_registry_factory=lambda *_args: None,
         runtime_controls=_runtime_controls(options),
@@ -393,9 +393,9 @@ def build_test_context(options: RuntimeOptions) -> RuntimeContext:
 def build_slow_agent_test_context(options: RuntimeOptions) -> RuntimeContext:
     workspace = (options.workspace or Path(".")).resolve()
     agent = AgentCore(SlowAgentProvider())
-    session_store = SessionStore(workspace / ".echobot" / "sessions")
-    agent_session_store = SessionStore(workspace / ".echobot" / "agent_sessions")
-    trace_store = AgentTraceStore(workspace / ".echobot" / "agent_traces")
+    session_store = SessionStore(workspace / ".amadeus" / "sessions")
+    agent_session_store = SessionStore(workspace / ".amadeus" / "agent_sessions")
+    trace_store = AgentTraceStore(workspace / ".amadeus" / "agent_traces")
     session_runner = SessionAgentRunner(
         agent,
         agent_session_store,
@@ -413,13 +413,13 @@ def build_slow_agent_test_context(options: RuntimeOptions) -> RuntimeContext:
     heartbeat_service = None
     if not options.no_heartbeat:
         heartbeat_service = HeartbeatService(
-            heartbeat_file=workspace / ".echobot" / "HEARTBEAT.md",
+            heartbeat_file=workspace / ".amadeus" / "HEARTBEAT.md",
             provider=FakeProvider(),
             interval_seconds=60,
         )
     return RuntimeContext(
         workspace=workspace,
-        attachment_store=AttachmentStore(workspace / ".echobot" / "attachments"),
+        attachment_store=AttachmentStore(workspace / ".amadeus" / "attachments"),
         supports_image_input=True,
         agent=agent,
         session_store=session_store,
@@ -427,13 +427,13 @@ def build_slow_agent_test_context(options: RuntimeOptions) -> RuntimeContext:
         session=None,
         tool_registry=None,
         skill_registry=None,
-        cron_service=CronService(workspace / ".echobot" / "cron" / "jobs.json"),
+        cron_service=CronService(workspace / ".amadeus" / "cron" / "jobs.json"),
         heartbeat_service=heartbeat_service,
         session_runner=session_runner,
         coordinator=coordinator,
         role_registry=role_registry,
         memory_support=None,
-        heartbeat_file_path=workspace / ".echobot" / "HEARTBEAT.md",
+        heartbeat_file_path=workspace / ".amadeus" / "HEARTBEAT.md",
         heartbeat_interval_seconds=60,
         tool_registry_factory=lambda *_args: None,
         runtime_controls=_runtime_controls(options),
@@ -444,9 +444,9 @@ def build_slow_agent_test_context(options: RuntimeOptions) -> RuntimeContext:
 def build_slow_ack_test_context(options: RuntimeOptions) -> RuntimeContext:
     workspace = (options.workspace or Path(".")).resolve()
     agent = AgentCore(FakeProvider())
-    session_store = SessionStore(workspace / ".echobot" / "sessions")
-    agent_session_store = SessionStore(workspace / ".echobot" / "agent_sessions")
-    trace_store = AgentTraceStore(workspace / ".echobot" / "agent_traces")
+    session_store = SessionStore(workspace / ".amadeus" / "sessions")
+    agent_session_store = SessionStore(workspace / ".amadeus" / "agent_sessions")
+    trace_store = AgentTraceStore(workspace / ".amadeus" / "agent_traces")
     session_runner = SessionAgentRunner(
         agent,
         agent_session_store,
@@ -464,13 +464,13 @@ def build_slow_ack_test_context(options: RuntimeOptions) -> RuntimeContext:
     heartbeat_service = None
     if not options.no_heartbeat:
         heartbeat_service = HeartbeatService(
-            heartbeat_file=workspace / ".echobot" / "HEARTBEAT.md",
+            heartbeat_file=workspace / ".amadeus" / "HEARTBEAT.md",
             provider=FakeProvider(),
             interval_seconds=60,
         )
     return RuntimeContext(
         workspace=workspace,
-        attachment_store=AttachmentStore(workspace / ".echobot" / "attachments"),
+        attachment_store=AttachmentStore(workspace / ".amadeus" / "attachments"),
         supports_image_input=True,
         agent=agent,
         session_store=session_store,
@@ -478,13 +478,13 @@ def build_slow_ack_test_context(options: RuntimeOptions) -> RuntimeContext:
         session=None,
         tool_registry=None,
         skill_registry=None,
-        cron_service=CronService(workspace / ".echobot" / "cron" / "jobs.json"),
+        cron_service=CronService(workspace / ".amadeus" / "cron" / "jobs.json"),
         heartbeat_service=heartbeat_service,
         session_runner=session_runner,
         coordinator=coordinator,
         role_registry=role_registry,
         memory_support=None,
-        heartbeat_file_path=workspace / ".echobot" / "HEARTBEAT.md",
+        heartbeat_file_path=workspace / ".amadeus" / "HEARTBEAT.md",
         heartbeat_interval_seconds=60,
         tool_registry_factory=lambda *_args: None,
         runtime_controls=_runtime_controls(options),
@@ -510,7 +510,7 @@ def _delegated_ack_enabled(options: RuntimeOptions) -> bool:
     if options.delegated_ack_enabled is None:
         store = RuntimeSettingsStore(
             (options.workspace or Path(".")).resolve()
-            / ".echobot"
+            / ".amadeus"
             / "runtime_settings.json",
         )
         return store.load().delegated_ack_enabled is not False
@@ -520,7 +520,7 @@ def _delegated_ack_enabled(options: RuntimeOptions) -> bool:
 def _runtime_controls(options: RuntimeOptions) -> RuntimeControls:
     store = RuntimeSettingsStore(
         (options.workspace or Path(".")).resolve()
-        / ".echobot"
+        / ".amadeus"
         / "runtime_settings.json",
     )
     settings = store.load()
@@ -558,7 +558,7 @@ def _default_runtime_config(options: RuntimeOptions) -> RuntimeConfigSnapshot:
 
 
 def write_test_live2d_model(workspace: Path) -> None:
-    model_dir = workspace / ".echobot" / "live2d" / "兔兔"
+    model_dir = workspace / ".amadeus" / "live2d" / "兔兔"
     texture_dir = model_dir / "兔兔 .4096"
     texture_dir.mkdir(parents=True, exist_ok=True)
 
@@ -593,7 +593,7 @@ def write_test_live2d_model(workspace: Path) -> None:
 
 
 def write_test_hiyori_live2d_model(workspace: Path) -> None:
-    model_dir = workspace / ".echobot" / "live2d" / "hiyori_pro_en" / "runtime"
+    model_dir = workspace / ".amadeus" / "live2d" / "hiyori_pro_en" / "runtime"
     texture_dir = model_dir / "hiyori_pro_t11.2048"
     texture_dir.mkdir(parents=True, exist_ok=True)
 
@@ -628,7 +628,7 @@ def write_test_hiyori_live2d_model(workspace: Path) -> None:
 
 
 def write_test_vtube_live2d_model(workspace: Path) -> None:
-    model_dir = workspace / ".echobot" / "live2d" / "yumi"
+    model_dir = workspace / ".amadeus" / "live2d" / "yumi"
     texture_dir = model_dir / "textures"
     texture_dir.mkdir(parents=True, exist_ok=True)
 
@@ -766,7 +766,7 @@ def write_test_vtube_live2d_model(workspace: Path) -> None:
         json.dumps(motion_payload, ensure_ascii=False),
         encoding="utf-8",
     )
-    (model_dir / "echobot.live2d.json").write_text(
+    (model_dir / "amadeus.live2d.json").write_text(
         json.dumps(annotations_payload, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
@@ -775,7 +775,7 @@ def write_test_vtube_live2d_model(workspace: Path) -> None:
 
 
 def write_test_split_runtime_live2d_models(workspace: Path) -> None:
-    base_dir = workspace / ".echobot" / "live2d" / "duo"
+    base_dir = workspace / ".amadeus" / "live2d" / "duo"
     runtime_specs = [
         {
             "runtime_name": "alpha",
@@ -865,7 +865,7 @@ def write_test_split_runtime_live2d_models(workspace: Path) -> None:
             json.dumps(expression_payload, ensure_ascii=False),
             encoding="utf-8",
         )
-        (runtime_dir / "echobot.live2d.json").write_text(
+        (runtime_dir / "amadeus.live2d.json").write_text(
             json.dumps(annotations_payload, ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
@@ -874,7 +874,7 @@ def write_test_split_runtime_live2d_models(workspace: Path) -> None:
 
 
 def write_test_cron_jobs(workspace: Path) -> None:
-    cron_store_path = workspace / ".echobot" / "cron" / "jobs.json"
+    cron_store_path = workspace / ".amadeus" / "cron" / "jobs.json"
     cron_store_path.parent.mkdir(parents=True, exist_ok=True)
     store = CronStore(
         jobs=[
@@ -923,7 +923,7 @@ def write_test_cron_jobs(workspace: Path) -> None:
 
 
 def write_test_heartbeat_file(workspace: Path, content: str) -> None:
-    heartbeat_file_path = workspace / ".echobot" / "HEARTBEAT.md"
+    heartbeat_file_path = workspace / ".amadeus" / "HEARTBEAT.md"
     heartbeat_file_path.parent.mkdir(parents=True, exist_ok=True)
     heartbeat_file_path.write_text(content, encoding="utf-8")
 
@@ -940,7 +940,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -972,7 +972,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -1017,7 +1017,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -1071,7 +1071,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -1119,7 +1119,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -1185,7 +1185,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -1220,7 +1220,7 @@ class AppApiTests(unittest.TestCase):
             self.assertTrue(upload_payload["attachment_id"].startswith("file_"))
             self.assertEqual("text/plain", upload_payload["content_type"])
             self.assertTrue(upload_payload["download_url"].startswith("/api/attachments/"))
-            self.assertTrue(upload_payload["workspace_path"].startswith(".echobot/attachments/files/file_"))
+            self.assertTrue(upload_payload["workspace_path"].startswith(".amadeus/attachments/files/file_"))
             self.assertTrue(upload_payload["workspace_path"].endswith(".txt"))
 
             self.assertEqual(200, downloaded.status_code)
@@ -1260,7 +1260,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -1303,7 +1303,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -1359,7 +1359,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -1413,11 +1413,11 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
-            role_file = workspace / ".echobot" / "roles" / "helper-cat.md"
+            role_file = workspace / ".amadeus" / "roles" / "helper-cat.md"
 
             with TestClient(app) as client:
                 created = client.post(
@@ -1483,7 +1483,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -1502,7 +1502,7 @@ class AppApiTests(unittest.TestCase):
 
             self.assertEqual(200, created.status_code)
             self.assertEqual(created_name, created.json()["name"])
-            self.assertTrue((workspace / ".echobot" / "sessions" / f"{renamed_name}.jsonl").exists())
+            self.assertTrue((workspace / ".amadeus" / "sessions" / f"{renamed_name}.jsonl").exists())
 
             self.assertEqual(200, current.status_code)
             self.assertEqual(created_name, current.json()["name"])
@@ -1527,14 +1527,14 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
             role_name = "助手猫娘"
             role_prompt = "# 助手猫娘\n\n用简洁中文回答。"
             role_path = quote(role_name, safe="")
-            role_file = workspace / ".echobot" / "roles" / f"{role_name}.md"
+            role_file = workspace / ".amadeus" / "roles" / f"{role_name}.md"
 
             with TestClient(app) as client:
                 created = client.post(
@@ -1587,7 +1587,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -1618,7 +1618,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 asr_service_builder=build_test_asr_service,
             )
@@ -1658,7 +1658,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 asr_service_builder=build_test_asr_service,
             )
@@ -1699,7 +1699,7 @@ class AppApiTests(unittest.TestCase):
             self.assertFalse(
                 (
                     workspace
-                    / ".echobot"
+                    / ".amadeus"
                     / "sessions"
                     / f"{route_session.session_name}.jsonl"
                 ).exists()
@@ -1707,7 +1707,7 @@ class AppApiTests(unittest.TestCase):
             self.assertFalse(
                 (
                     workspace
-                    / ".echobot"
+                    / ".amadeus"
                     / "agent_sessions"
                     / f"{route_session.session_name}.jsonl"
                 ).exists()
@@ -1732,7 +1732,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -1779,7 +1779,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -1831,7 +1831,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_slow_agent_test_context,
             )
 
@@ -1882,7 +1882,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -1924,7 +1924,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_slow_agent_test_context,
             )
 
@@ -1970,7 +1970,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -2020,7 +2020,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -2062,7 +2062,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -2115,7 +2115,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_slow_ack_test_context,
             )
 
@@ -2174,7 +2174,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -2214,7 +2214,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -2238,7 +2238,7 @@ class AppApiTests(unittest.TestCase):
             self.assertEqual("job_disabled", payload["jobs"][0]["id"])
 
             saved = json.loads(
-                (workspace / ".echobot" / "cron" / "jobs.json").read_text(encoding="utf-8"),
+                (workspace / ".amadeus" / "cron" / "jobs.json").read_text(encoding="utf-8"),
             )
             self.assertEqual(1, len(saved["jobs"]))
             self.assertEqual("job_disabled", saved["jobs"][0]["id"])
@@ -2260,7 +2260,7 @@ class AppApiTests(unittest.TestCase):
                     no_skills=True,
                     no_memory=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
             )
 
@@ -2277,7 +2277,7 @@ class AppApiTests(unittest.TestCase):
             self.assertTrue(heartbeat.json()["enabled"])
             self.assertEqual(60, heartbeat.json()["interval_seconds"])
             self.assertEqual(
-                str(workspace / ".echobot" / "HEARTBEAT.md"),
+                str(workspace / ".amadeus" / "HEARTBEAT.md"),
                 heartbeat.json()["file_path"],
             )
             self.assertEqual("# HEARTBEAT.md\n\n- [ ] Check inbox\n", heartbeat.json()["content"])
@@ -2288,7 +2288,7 @@ class AppApiTests(unittest.TestCase):
             self.assertTrue(saved.json()["has_meaningful_content"])
             self.assertEqual(
                 updated_content,
-                (workspace / ".echobot" / "HEARTBEAT.md").read_text(encoding="utf-8"),
+                (workspace / ".amadeus" / "HEARTBEAT.md").read_text(encoding="utf-8"),
             )
 
     def test_web_console_routes_expose_static_ui_and_live2d_assets(self) -> None:
@@ -2304,7 +2304,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -2360,7 +2360,7 @@ class AppApiTests(unittest.TestCase):
                 self.assertIn('id="message-image-dialog"', page.text)
                 self.assertIn('id="message-image-dialog-image"', page.text)
                 self.assertNotIn('id="message-image-dialog-link"', page.text)
-                self.assertIn("EchoBot Web Console", page.text)
+                self.assertIn("Amadeus Web Console", page.text)
                 self.assertIn("HEARTBEAT 周期任务", page.text)
                 self.assertIn("CRON 定时任务", page.text)
 
@@ -2434,7 +2434,7 @@ class AppApiTests(unittest.TestCase):
     def test_web_console_runtime_toggle_updates_config_and_persists(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
-            settings_path = workspace / ".echobot" / "runtime_settings.json"
+            settings_path = workspace / ".amadeus" / "runtime_settings.json"
             settings_path.parent.mkdir(parents=True, exist_ok=True)
             settings_path.write_text(
                 json.dumps(
@@ -2459,7 +2459,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -2513,7 +2513,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -2535,7 +2535,7 @@ class AppApiTests(unittest.TestCase):
     def test_web_console_runtime_patch_updates_only_requested_fields(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
-            settings_path = workspace / ".echobot" / "runtime_settings.json"
+            settings_path = workspace / ".amadeus" / "runtime_settings.json"
             settings_path.parent.mkdir(parents=True, exist_ok=True)
             settings_path.write_text(
                 json.dumps(
@@ -2560,7 +2560,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -2603,7 +2603,7 @@ class AppApiTests(unittest.TestCase):
     def test_web_console_runtime_reset_clears_overrides_and_restores_defaults(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
-            settings_path = workspace / ".echobot" / "runtime_settings.json"
+            settings_path = workspace / ".amadeus" / "runtime_settings.json"
             settings_path.parent.mkdir(parents=True, exist_ok=True)
             settings_path.write_text(
                 json.dumps(
@@ -2630,7 +2630,7 @@ class AppApiTests(unittest.TestCase):
             )
             app = create_app(
                 runtime_options=runtime_options,
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -2667,7 +2667,7 @@ class AppApiTests(unittest.TestCase):
 
             restarted_app = create_app(
                 runtime_options=runtime_options,
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -2691,7 +2691,7 @@ class AppApiTests(unittest.TestCase):
     def test_web_console_asr_provider_switch_updates_config_and_persists(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
-            settings_path = workspace / ".echobot" / "runtime_settings.json"
+            settings_path = workspace / ".amadeus" / "runtime_settings.json"
             settings_path.parent.mkdir(parents=True, exist_ok=True)
             settings_path.write_text(
                 json.dumps(
@@ -2712,7 +2712,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -2751,7 +2751,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -2776,7 +2776,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -2825,7 +2825,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -2916,7 +2916,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -2966,7 +2966,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -2983,15 +2983,15 @@ class AppApiTests(unittest.TestCase):
                 ["smile.exp3.json", "sad.exp3.json"],
                 [item["File"] for item in patched_model["FileReferences"]["Expressions"]],
             )
-            self.assertIn("EchoBotIdle", patched_model["FileReferences"]["Motions"])
-            self.assertIn("EchoBotAuto", patched_model["FileReferences"]["Motions"])
+            self.assertIn("AmadeusIdle", patched_model["FileReferences"]["Motions"])
+            self.assertIn("AmadeusAuto", patched_model["FileReferences"]["Motions"])
             self.assertEqual(
                 "wave.motion3.json",
-                patched_model["FileReferences"]["Motions"]["EchoBotIdle"][0]["File"],
+                patched_model["FileReferences"]["Motions"]["AmadeusIdle"][0]["File"],
             )
             self.assertEqual(
                 "jump.motion3.json",
-                patched_model["FileReferences"]["Motions"]["EchoBotAuto"][0]["File"],
+                patched_model["FileReferences"]["Motions"]["AmadeusAuto"][0]["File"],
             )
 
     def test_web_console_can_save_live2d_annotations(self) -> None:
@@ -3007,7 +3007,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -3040,10 +3040,10 @@ class AppApiTests(unittest.TestCase):
             self.assertEqual(200, motion_saved.status_code)
             annotations_path = (
                 workspace
-                / ".echobot"
+                / ".amadeus"
                 / "live2d"
                 / "yumi"
-                / "echobot.live2d.json"
+                / "amadeus.live2d.json"
             )
             annotations_payload = json.loads(annotations_path.read_text(encoding="utf-8"))
             self.assertEqual("悲伤播报", annotations_payload["expressions"]["sad.exp3.json"])
@@ -3078,7 +3078,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -3117,10 +3117,10 @@ class AppApiTests(unittest.TestCase):
 
             annotations_path = (
                 workspace
-                / ".echobot"
+                / ".amadeus"
                 / "live2d"
                 / "yumi"
-                / "echobot.live2d.json"
+                / "amadeus.live2d.json"
             )
             annotations_payload = json.loads(annotations_path.read_text(encoding="utf-8"))
             self.assertEqual(
@@ -3161,7 +3161,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -3198,10 +3198,10 @@ class AppApiTests(unittest.TestCase):
 
             annotations_path = (
                 workspace
-                / ".echobot"
+                / ".amadeus"
                 / "live2d"
                 / "yumi"
-                / "echobot.live2d.json"
+                / "amadeus.live2d.json"
             )
             annotations_payload = json.loads(annotations_path.read_text(encoding="utf-8"))
             self.assertNotIn("hk_motion_wave", annotations_payload["hotkeys"])
@@ -3232,7 +3232,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -3280,19 +3280,19 @@ class AppApiTests(unittest.TestCase):
 
             alpha_annotations_path = (
                 workspace
-                / ".echobot"
+                / ".amadeus"
                 / "live2d"
                 / "duo"
                 / "alpha"
-                / "echobot.live2d.json"
+                / "amadeus.live2d.json"
             )
             beta_annotations_path = (
                 workspace
-                / ".echobot"
+                / ".amadeus"
                 / "live2d"
                 / "duo"
                 / "beta"
-                / "echobot.live2d.json"
+                / "amadeus.live2d.json"
             )
             alpha_annotations = json.loads(alpha_annotations_path.read_text(encoding="utf-8"))
             beta_annotations = json.loads(beta_annotations_path.read_text(encoding="utf-8"))
@@ -3355,7 +3355,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -3363,7 +3363,7 @@ class AppApiTests(unittest.TestCase):
 
             with patch.dict(
                 os.environ,
-                {"ECHOBOT_WEB_LIVE2D_MODEL": "hiyori_pro_en"},
+                {"AMADEUS_WEB_LIVE2D_MODEL": "hiyori_pro_en"},
                 clear=False,
             ):
                 with TestClient(app) as client:
@@ -3396,7 +3396,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -3404,7 +3404,7 @@ class AppApiTests(unittest.TestCase):
 
             with patch.dict(
                 os.environ,
-                {"ECHOBOT_WEB_LIVE2D_MODEL": "missing-model"},
+                {"AMADEUS_WEB_LIVE2D_MODEL": "missing-model"},
                 clear=False,
             ):
                 with TestClient(app) as client:
@@ -3426,7 +3426,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -3452,7 +3452,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -3460,7 +3460,7 @@ class AppApiTests(unittest.TestCase):
 
             with patch.dict(
                 os.environ,
-                {"ECHOBOT_WEB_LIVE2D_MODEL": "builtin:mao_pro_en"},
+                {"AMADEUS_WEB_LIVE2D_MODEL": "builtin:mao_pro_en"},
                 clear=False,
             ):
                 with TestClient(app) as client:
@@ -3489,7 +3489,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -3544,7 +3544,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
@@ -3590,7 +3590,7 @@ class AppApiTests(unittest.TestCase):
                     no_memory=True,
                     no_heartbeat=True,
                 ),
-                channel_config_path=workspace / ".echobot" / "channels.json",
+                channel_config_path=workspace / ".amadeus" / "channels.json",
                 context_builder=build_test_context,
                 tts_service_builder=build_test_tts_service,
                 asr_service_builder=build_test_asr_service,
