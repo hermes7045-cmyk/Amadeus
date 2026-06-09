@@ -11,6 +11,7 @@ import {
     scheduleMathTypesetting,
 } from "./math.js";
 import { buildMarkdownFragment } from "./markdown.js";
+import { stripActionDescriptions } from "./content.js";
 
 let pendingScrollFrameId = 0;
 
@@ -159,12 +160,13 @@ function renderMessageBody(element, kind, content, options = {}) {
         return;
     }
 
+    const filteredContent = stripActionDescriptions(normalizedContent);
     const renderMode = resolveMessageRenderMode(kind, options);
     if (renderMode === "markdown") {
-        renderMarkdownBody(element, normalizedContent);
+        renderMarkdownBody(element, filteredContent);
         return;
     }
-    renderPlainTextBody(element, normalizedContent);
+    renderPlainTextBody(element, filteredContent);
 }
 
 function resolveMessageRenderMode(kind, options) {
@@ -233,14 +235,15 @@ function renderStructuredBody(element, kind, contentBlocks, options) {
 function buildTextBlock(text, renderMode) {
     const block = document.createElement("div");
     block.className = "message-block message-block-text";
+    const filteredText = stripActionDescriptions(text);
     if (renderMode === "markdown") {
         block.classList.add("message-text-markdown");
-        block.replaceChildren(buildMarkdownFragment(String(text || "")));
+        block.replaceChildren(buildMarkdownFragment(String(filteredText || "")));
         return block;
     }
 
     block.classList.add("message-text-plain");
-    block.textContent = String(text || "");
+    block.textContent = String(filteredText || "");
     return block;
 }
 

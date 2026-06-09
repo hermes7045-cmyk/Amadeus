@@ -70,12 +70,21 @@ export function messageContentImageUrls(content) {
         .filter(Boolean);
 }
 
+
+export function stripActionDescriptions(text) {
+    if (typeof text !== "string") {
+        return text;
+    }
+    // Remove full-width parenthetical action descriptions like （深く息を吸って）
+    return text.replace(/（[^）]*）/g, "").replace(/\s{2,}/g, " ").trim();
+}
+
 export function messageContentToText(content, options = {}) {
     const normalized = normalizeMessageContent(content);
     const includeImageMarker = options.includeImageMarker !== false;
 
     if (!Array.isArray(normalized)) {
-        return normalized;
+        return stripActionDescriptions(normalized);
     }
 
     const parts = [];
@@ -108,7 +117,7 @@ export function messageContentToText(content, options = {}) {
         }
     });
 
-    return parts.join("\n\n");
+    return stripActionDescriptions(parts.join("\n\n"));
 }
 
 export function messageContentEquals(left, right) {

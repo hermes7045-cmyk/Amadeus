@@ -586,10 +586,10 @@ export function createLive2DModelController(deps) {
         const baseSize = measureLive2DBaseSize(model);
         const widthRatio = stageWidth / Math.max(baseSize.width, 1);
         const heightRatio = stageHeight / Math.max(baseSize.height, 1);
-        const nextScale = Math.min(widthRatio, heightRatio) * 0.82;
+        const nextScale = Math.min(widthRatio, heightRatio) * 1.8;
 
         model.scale.set(nextScale);
-        model.position.set(stageWidth * 0.5, stageHeight * 0.82);
+        model.position.set(stageWidth * 0.5, stageHeight * 0.9);
     }
 
     function measureLive2DBaseSize(model) {

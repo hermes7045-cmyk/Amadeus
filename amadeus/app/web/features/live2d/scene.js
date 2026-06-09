@@ -485,10 +485,13 @@ export function createLive2DSceneController(deps) {
             throw new Error("Failed to load pixi-live2d-display");
         }
 
+        const targetResolution = Math.max(window.devicePixelRatio || 1, 2);
+        window.PIXI.settings.FILTER_RESOLUTION = targetResolution;
+
         live2dState.pixiApp = new window.PIXI.Application({
             view: document.getElementById("live2d-canvas"),
             resizeTo: DOM.stageElement,
-            resolution: Math.max(window.devicePixelRatio || 1, 2),
+            resolution: targetResolution,
             autoStart: true,
             antialias: true,
             backgroundAlpha: 0,
