@@ -1,0 +1,2 @@
+# Ignore the whole vendor directory because echobot/app/web/vendor/mathjax is too large, which can cause coding agent to hang when using rg.
+echobot/app/web/vendor/
